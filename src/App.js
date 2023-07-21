@@ -7,6 +7,7 @@ function App() {
   const [Login, setLogin] = useState(false);
   const [logout, setLogout] = useState(false);
   const [balance, setBalance] = useState("");
+  const [account, setAccount] = useState("");
   const auth = useAuth();
   // useEffect(() => {
   //   if (Login) {
@@ -22,6 +23,44 @@ function App() {
     console.log("login succs");
     alert("login sucks");
   };
+
+  useEffect(() => {
+    const getAccounts = async () => {
+      console.log("Requesting accounts");
+      try {
+        const accounts = await auth.provider.request({
+          method: "eth_accounts",
+        });
+        console.log({ accounts });
+        console.log(accounts[0]);
+        setAccount(accounts[0]);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getAccounts();
+  }, [Login]);
+
+  useEffect(() => {
+    const getBalance = async () => {
+      console.log("Requesting balance");
+      try {
+        const accounts = await auth.provider.request({
+          method: "eth_getBalance",
+
+          params: [account, "latest"],
+        });
+
+        console.log(accounts);
+        setBalance(accounts);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getBalance();
+  }, [Login]);
 
   const HandleClick = async () => {
     console.log("login start");
@@ -41,7 +80,8 @@ function App() {
       ) : auth.isLoggedIn ? (
         <>
           <p>Logged In</p>
-          {balance}
+          Balance: {balance}
+          <h1>Account: {account}</h1>
           <button onClick={handleLogout}>log out</button>
         </>
       ) : (
